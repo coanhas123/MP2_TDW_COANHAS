@@ -1,0 +1,174 @@
+/* Regions.css - Regions page styles */
+
+.map-wrapper-swiss {
+  padding-bottom: var(--space-3xl);
+}
+
+.map-container {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  background-color: var(--color-bg);
+}
+
+.world-map {
+  width: 100%;
+  display: block;
+  filter: grayscale(100%) contrast(1.1) brightness(1.05);
+  opacity: 0.7;
+  mix-blend-mode: multiply;
+}
+
+/* Map Labels - Technical Diagram Style */
+.map-label {
+  position: absolute;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  transform: translate(-50%, -50%);
+  transition: all var(--transition-fast);
+  z-index: 10;
+}
+
+.label-text {
+  background: var(--color-text);
+  color: var(--color-bg);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.label-line {
+  display: block;
+  width: 32px;
+  height: 1px;
+  background-color: var(--color-text);
+  transition: width var(--transition-fast);
+}
+
+.map-label:hover .label-text {
+  background: var(--color-accent);
+}
+
+.map-label:hover .label-line {
+  width: 48px;
+}
+
+/* Label Positioning */
+.europe { top: 25%; left: 50%; }
+.asia { top: 30%; left: 75%; }
+.africa { top: 55%; left: 53%; }
+.samerica { top: 65%; left: 28%; }
+.camerica { top: 50%; left: 20%; }
+
+/* Regions List Section */
+.regions-wrapper {
+  padding: var(--space-xl) 0;
+}
+
+.regions-title {
+  font-size: var(--font-xl);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--space-sm);
+}
+
+.regions-description {
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+  margin: 0 0 var(--space-xl);
+}
+
+/* Region Cards Grid */
+.regions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+  padding-bottom: var(--space-3xl);
+}
+
+@media (min-width: 768px) {
+  .regions-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 992px) {
+  .regions-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.region-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  text-decoration: none;
+  color: var(--color-text);
+  transition: all var(--transition-fast);
+}
+
+.region-card:hover {
+  background: var(--color-text);
+  color: var(--color-bg);
+  border-color: var(--color-text);
+}
+
+.region-name {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.region-arrow {
+  font-size: var(--font-lg);
+  transition: transform var(--transition-fast);
+}
+
+.region-card:hover .region-arrow {
+  transform: translateX(4px);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 767px) {
+  .label-text {
+    font-size: 0.65rem;
+    padding: var(--space-xs) var(--space-sm);
+  }
+  
+  .label-line {
+    width: 16px;
+  }
+  
+  .map-label:hover .label-line {
+    width: 24px;
+  }
+  
+  /* Adjust positions for smaller screens */
+  .europe { top: 22%; left: 48%; }
+  .asia { top: 28%; left: 78%; }
+  .africa { top: 52%; left: 50%; }
+  .samerica { top: 62%; left: 25%; }
+  .camerica { top: 47%; left: 18%; }
+}
+
+@media (max-width: 479px) {
+  .label-line {
+    display: none;
+  }
+  
+  .map-label {
+    gap: 0;
+  }
+}

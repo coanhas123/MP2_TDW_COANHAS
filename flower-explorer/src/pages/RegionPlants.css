@@ -1,0 +1,240 @@
+/* RegionPlants Page - Swiss Design System */
+
+.region-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.region-error {
+  padding: var(--space-3xl) 0;
+  text-align: center;
+}
+
+.region-error .swiss-title {
+  font-size: var(--font-3xl);
+  margin-bottom: var(--space-md);
+}
+
+.error-message {
+  color: var(--color-accent);
+  font-size: var(--font-lg);
+  margin-bottom: var(--space-xl);
+}
+
+.region-empty {
+  padding: var(--space-3xl) 0;
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.region-empty p {
+  color: var(--color-text-muted);
+  font-size: var(--font-lg);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Filter Tabs */
+.filter-tabs {
+  display: flex;
+  gap: var(--space-xl);
+  margin-bottom: var(--space-2xl);
+  flex-wrap: wrap;
+}
+
+.filter-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: var(--space-xs) 0;
+  font-size: var(--font-sm);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filter-tab:hover {
+  color: var(--color-text);
+}
+
+.filter-tab.active {
+  color: var(--color-text);
+  font-weight: 600;
+  border-bottom-color: var(--color-text);
+}
+
+/* Taxonomic Filters */
+.taxonomic-filters {
+  margin: var(--space-2xl) 0;
+  padding: var(--space-xl) 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.active-filter-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-surface);
+  border: 1px solid var(--color-accent);
+  border-radius: 2px;
+}
+
+.active-filter-label {
+  font-size: var(--font-xs);
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.clear-filter-btn {
+  padding: 2px var(--space-xs);
+  font-size: var(--font-xs);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: var(--font-family);
+}
+
+.clear-filter-btn:hover {
+  background: var(--color-accent);
+  color: var(--color-bg);
+  border-color: var(--color-accent);
+}
+
+.filter-section-title {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.taxonomic-filter-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.filter-group-label {
+  font-size: var(--font-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
+.filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.taxonomic-tab {
+  padding: var(--space-xs) var(--space-md);
+  font-size: var(--font-xs);
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.taxonomic-tab-all {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-xs);
+  align-self: flex-start;
+}
+
+.taxonomic-tab:hover {
+  background: var(--color-border-light);
+  color: var(--color-text);
+  border-color: var(--color-text);
+}
+
+.taxonomic-tab.active {
+  background: var(--color-text);
+  color: var(--color-bg);
+  border-color: var(--color-text);
+  font-weight: 600;
+}
+
+.taxonomic-select {
+  padding: var(--space-xs) var(--space-md);
+  font-size: var(--font-xs);
+  font-weight: 500;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: var(--font-family);
+  max-width: 300px;
+  width: 100%;
+}
+
+.taxonomic-select:hover {
+  border-color: var(--color-text);
+}
+
+.taxonomic-select:focus {
+  outline: none;
+  border-color: var(--color-text);
+  background: var(--color-bg);
+}
+
+.taxonomic-select.active {
+  border-color: var(--color-accent);
+  background: var(--color-bg);
+}
+
+/* Load More Button */
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-3xl) 0;
+}
+
+.load-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xl);
+}
+
+.load-more-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.load-more-btn:disabled:hover {
+  background: var(--color-text);
+  transform: none;
+}
