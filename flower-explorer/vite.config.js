@@ -2,19 +2,13 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // GitHub Pages base path configuration
-// IMPORTANT: Change '/flower-explorer/' to match your repository name
-// - For project pages (username.github.io/repo-name): use '/repo-name/'
-// - For user/organization pages (username.github.io): use '/'
-// 
-// Example: if your repo is 'alice/my-flowers', change to '/my-flowers/'
 const REPO_NAME = '/MP2_TDW_COANHAS/'; // Base path for GitHub Pages
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   // Base path for GitHub Pages deployment
-  // In production, use the repo name as base path
-  // In development, use root path for local dev server
+  // Use base path in production build, root path in development
   base: process.env.NODE_ENV === 'production' ? REPO_NAME : '/',
   server: {
     proxy: {

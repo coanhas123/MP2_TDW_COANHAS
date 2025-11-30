@@ -49,6 +49,8 @@ jobs:
       # Build the project
       - name: Build
         run: npm run build
+        env:
+          NODE_ENV: production
 
       # Setup GitHub Pages
       - name: Setup Pages

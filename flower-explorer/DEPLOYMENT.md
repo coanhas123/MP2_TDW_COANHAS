@@ -39,6 +39,48 @@ git push origin main
 
 ---
 
+## Configurar Domínio Personalizado (flourished.pt)
+
+Para usar o domínio personalizado `flourished.pt` com o GitHub Pages:
+
+### Passo 1: Configurar Registro TXT no DNS
+
+1. Acesse o painel do seu provedor DNS (onde o domínio `flourished.pt` está registrado)
+2. Crie um novo registro **TXT** com os seguintes valores:
+   - **Nome/Host:** `_github-pages-challenge-coanhas123`
+   - **Tipo:** `TXT`
+   - **Valor:** `93dc1a11f31aa8040ac1366d3a0c5f`
+   - **TTL:** Use o valor padrão (geralmente 3600 ou 1 hora)
+
+3. **Aguarde a propagação do DNS** - pode levar até 24 horas
+
+### Passo 2: Adicionar Domínio no GitHub
+
+Após o DNS propagar:
+
+1. Vá para o repositório no GitHub: https://github.com/coanhas123/MP2_TDW_COANHAS
+2. Clique em **Settings** (Configurações)
+3. No menu lateral, clique em **Pages**
+4. Na secção **Custom domain**, digite: `flourished.pt`
+5. Clique em **Save**
+6. O GitHub verificará automaticamente o registro TXT que você configurou
+
+### Passo 3: Configurar Registros DNS (Após Verificação)
+
+Após a verificação bem-sucedida, o GitHub fornecerá instruções para configurar:
+
+- **Registro A** ou **Registro CNAME** para apontar o domínio para o GitHub Pages
+
+**Nota:** O arquivo `public/CNAME` já foi criado com o conteúdo `flourished.pt` e será incluído automaticamente no deploy.
+
+### Verificar Status
+
+- Verifique a propagação DNS: https://dnschecker.org
+- Status do domínio no GitHub: **Settings > Pages** no repositório
+- Após configurado: `https://flourished.pt` estará disponível
+
+---
+
 ## Deploy Manual (Alternativa)
 
 ### Pré-requisitos
@@ -131,9 +173,10 @@ Crie `public/404.html`:
 
 ## URLs Comuns
 
-- **Site publicado:** `https://username.github.io/flower-explorer/`
-- **Actions (workflows):** `https://github.com/username/flower-explorer/actions`
-- **Settings > Pages:** `https://github.com/username/flower-explorer/settings/pages`
+- **Site publicado (GitHub Pages):** `https://coanhas123.github.io/MP2_TDW_COANHAS/`
+- **Site publicado (Domínio personalizado):** `https://flourished.pt` (após configurar DNS)
+- **Actions (workflows):** `https://github.com/coanhas123/MP2_TDW_COANHAS/actions`
+- **Settings > Pages:** `https://github.com/coanhas123/MP2_TDW_COANHAS/settings/pages`
 
 ---
 
