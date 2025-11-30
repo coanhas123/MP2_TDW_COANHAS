@@ -2,7 +2,7 @@
 
 Aplicação web React para explorar e gerir uma coleção pessoal de plantas com flores. Explore flores de diferentes regiões geográficas, adicione as suas próprias plantas e guarde as suas favoritas.
 
-## 🌟 Funcionalidades
+## Funcionalidades
 
 - **Coleção Pessoal**: Adicione as suas próprias plantas com fotos
 - **Exploração Regional**: Descubra flores de 5 continentes (Europa, Ásia, África, América do Sul, América Central)
@@ -10,7 +10,7 @@ Aplicação web React para explorar e gerir uma coleção pessoal de plantas com
 - **Informações Detalhadas**: Visualize dados taxonómicos, status de conservação e instruções de cuidados
 - **Design Responsivo**: Funciona perfeitamente em dispositivos móveis, tablets e desktops
 
-## 🚀 Início Rápido
+## Início Rápido
 
 ### Pré-requisitos
 - Node.js 18+ e npm
@@ -28,13 +28,13 @@ npm run dev
 npm run build
 ```
 
-## 📦 Deploy no GitHub Pages
+## Deploy no GitHub Pages
 
 ### Configuração Rápida
 
 1. **Atualizar o base path no `vite.config.js`**:
    ```javascript
-   const REPO_NAME = '/seu-nome-do-repositorio/'; // ⬅️ MUDE ISTO!
+   const REPO_NAME =
    ```
 
 2. **Fazer push para o GitHub**:
@@ -90,4 +90,6 @@ Desenvolvido como parte de um projeto académico.
 ---
 
 **Nota**: Certifique-se de atualizar o `REPO_NAME` no `vite.config.js` antes de fazer deploy!
+
+
 
