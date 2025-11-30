@@ -41,29 +41,28 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: 'flower-explorer/package-lock.json'
 
       # Install dependencies
       - name: Install dependencies
-        working-directory: ./flower-explorer
         run: npm ci
 
       # Build the project
       - name: Build
-        working-directory: ./flower-explorer
         run: npm run build
         env:
           NODE_ENV: production
 
       # Verify build output
       - name: Verify build files
-        working-directory: ./flower-explorer
         run: |
           echo "Checking dist folder contents:"
           ls -la dist/ || echo "dist folder not found!"
           echo ""
           echo "Checking for index.html:"
           ls -la dist/index.html || echo "index.html not found!"
+          echo ""
+          echo "Checking for .nojekyll:"
+          ls -la dist/.nojekyll || echo ".nojekyll not found!"
           echo ""
           echo "Build files:"
           find dist -type f | head -20
@@ -76,7 +75,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './flower-explorer/dist'
+          path: './dist'
 
       # Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
