@@ -143,8 +143,11 @@ function Home() {
 // Componente raiz - Configura roteamento da aplicação
 // Rotas: "/" (coleção), "/regions" (mapa), "/region/:region" (flores da região)
 export default function App() {
+  // Base path para GitHub Pages (deve corresponder ao vite.config.js)
+  const basename = import.meta.env.PROD ? '/MP2_TDW_COANHAS' : '';
+  
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <div className="app-wrapper">
         <Header />
         <main className="swiss-container">

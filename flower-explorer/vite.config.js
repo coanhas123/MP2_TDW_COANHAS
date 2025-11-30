@@ -7,7 +7,7 @@ import react from '@vitejs/plugin-react'
 // - For user/organization pages (username.github.io): use '/'
 // 
 // Example: if your repo is 'alice/my-flowers', change to '/my-flowers/'
-const REPO_NAME = '/flower-explorer/'; // ⬅️ CHANGE THIS to your repo name!
+const REPO_NAME = '/MP2_TDW_COANHAS/'; // Base path for GitHub Pages
 
 // https://vite.dev/config/
 export default defineConfig({

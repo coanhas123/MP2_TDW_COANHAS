@@ -1,4 +1,4 @@
-# ME FLOWERS 🌸
+# Flourished 🌸
 
 Aplicação web React para explorar e gerir uma coleção pessoal de plantas com flores. Explore flores de diferentes regiões geográficas, adicione as suas próprias plantas e guarde as suas favoritas.
 
@@ -51,7 +51,7 @@ npm run build
 
 4. **Aguardar o deploy**:
    - Vá para a aba **Actions** para ver o progresso
-   - Quando concluído, o site estará disponível em: `https://seu-usuario.github.io/seu-repo/`
+   - Quando concluído, o site estará disponível em: `https://coanhas123.github.io/MP2_TDW_COANHAS/`
 
 📖 **Guia completo de deploy**: Ver [DEPLOYMENT.md](./DEPLOYMENT.md)
 
@@ -89,7 +89,7 @@ Desenvolvido como parte de um projeto académico.
 
 ---
 
-**Nota**: Certifique-se de atualizar o `REPO_NAME` no `vite.config.js` antes de fazer deploy!
+**Nota**: O projeto está configurado para deploy no GitHub Pages. URL: https://coanhas123.github.io/MP2_TDW_COANHAS/
 
 
 
