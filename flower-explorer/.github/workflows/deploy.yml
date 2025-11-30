@@ -41,13 +41,16 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+          cache-dependency-path: 'flower-explorer/package-lock.json'
 
       # Install dependencies
       - name: Install dependencies
+        working-directory: ./flower-explorer
         run: npm ci
 
       # Build the project
       - name: Build
+        working-directory: ./flower-explorer
         run: npm run build
         env:
           NODE_ENV: production
@@ -60,7 +63,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: './flower-explorer/dist'
 
       # Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
