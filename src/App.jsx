@@ -46,7 +46,8 @@ function Home() {
   };
 
   const handleAddToCollection = (flower) => {
-    return addFavorite(flower);
+    const result = addFavorite(flower);
+    return result;
   };
 
   // Filtra apenas plantas pessoais (IDs que começam com 'user-' ou 'sample-')

@@ -88,8 +88,9 @@ export default function useFavorites() {
       replaceFavoritesWithoutImages(withoutImages);
     }
     
-    // Filter out favorites without images
+    // Filter out favorites without images and update state
     const validFavorites = loaded.filter(hasValidImage);
+    console.log('[useFavorites] Reloading favorites from storage:', validFavorites.length, 'favorites');
     setFavorites(validFavorites);
     return validFavorites;
   }, [replaceFavoritesWithoutImages]);
@@ -126,16 +127,14 @@ export default function useFavorites() {
 
   // Save favorites whenever they change
   useEffect(() => {
-    if (favorites.length > 0 || loadFavorites().length === 0) {
-      // Only save favorites with valid images
-      const validFavorites = favorites.filter(hasValidImage);
-      saveFavorites(validFavorites);
-      
-      // Trigger sync event after a small delay to ensure localStorage is written
-      setTimeout(() => {
-        triggerFavoritesSync();
-      }, 100);
-    }
+    // Always save favorites (even if empty) - only save favorites with valid images
+    const validFavorites = favorites.filter(hasValidImage);
+    saveFavorites(validFavorites);
+    
+    // Trigger sync event after a small delay to ensure localStorage is written
+    setTimeout(() => {
+      triggerFavoritesSync();
+    }, 100);
   }, [favorites]);
 
   // Add a flower to favorites
@@ -148,10 +147,11 @@ export default function useFavorites() {
     setFavorites(currentFavorites => {
       // Check if already in favorites (by scientific_name as unique identifier)
       const isAlreadyFavorite = currentFavorites.some(
-        fav => fav.scientific_name === flower.scientific_name
+        fav => fav.scientific_name === flower.scientific_name || fav.scientific === flower.scientific_name
       );
 
       if (isAlreadyFavorite) {
+        console.log('[useFavorites] Flower already in favorites:', flower.scientific_name);
         return currentFavorites; // Already in favorites
       }
 
@@ -167,7 +167,9 @@ export default function useFavorites() {
         default_image: flower.default_image || (flower.image ? { medium_url: flower.image } : null),
       };
 
-      return [...currentFavorites, favoriteFlower];
+      const updatedFavorites = [...currentFavorites, favoriteFlower];
+      console.log('[useFavorites] Added favorite. New count:', updatedFavorites.length);
+      return updatedFavorites;
     });
 
     return true;
@@ -176,7 +178,9 @@ export default function useFavorites() {
   // Remove a flower from favorites
   const removeFavorite = useCallback((flowerId) => {
     setFavorites(currentFavorites => {
-      return currentFavorites.filter(fav => fav.id !== flowerId);
+      const updated = currentFavorites.filter(fav => fav.id !== flowerId);
+      console.log('[useFavorites] Removed favorite. Remaining count:', updated.length);
+      return updated;
     });
   }, []);
 
