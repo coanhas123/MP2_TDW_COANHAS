@@ -1,6 +1,6 @@
 /* 
    SWISS DESIGN SYSTEM
-   Para este projeto a estética suiça é a mais adequada pois dá um ar minimalista e limpo destacando apenas as flores 
+   Para este projeto a estética suiça é a mais adequada pois dá um ar minimalista e limpo capaz de destacar apenas as plantas
    Para contribuição para um design mais apelativo pesquisei online exemplos e usei ferramentas de inteligencia artificial que me ajudaram a alcançar o design que eu desejava 
    */
 
@@ -278,9 +278,9 @@ button {
   letter-spacing: 0.05em;
 }
 
-/* 
-   Cartões das flores- Baseado no Swiss Minimal Design
- */
+
+/* Cartões das flores- Baseado no Swiss Minimal Design */
+
 
 .flower-card {
   position: relative;

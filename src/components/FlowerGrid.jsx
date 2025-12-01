@@ -1,5 +1,5 @@
-// Grid responsivo para exibir cartões de flores
-// Filtra flores sem imagens (não cria cartões para elas)
+//Grelha responsiva para organizar cartões das plantas
+// Filtra plantas sem imagens (não cria cartões para elas)
 // Layout adaptativo: 1 coluna (móvel), 2-3 colunas (tablet), 3-4 colunas (desktop)
 import FlowerCard from './FlowerCard';
 import Loader from './Loader';
@@ -20,7 +20,7 @@ export default function FlowerGrid({ flowers, loading, onRemove, onCardClick, em
 
   const safeFlowers = Array.isArray(flowers) ? flowers : [];
   
-  // Filtra flores sem imagens - importante: não cria cartões para elas
+  
   const visibleFlowers = safeFlowers.filter(flower => {
     if (!hasValidImage(flower)) {
       return false;

@@ -25,7 +25,7 @@
 }
 
 .logo:hover {
-  color: #E63946; /* Red color on hover */
+  color: #E63946; 
 }
 
 .logo-text {
@@ -71,7 +71,7 @@
   background: var(--color-accent);
 }
 
-/* Mobile responsiveness */
+
 @media (max-width: 575px) {
   .header-container {
     flex-direction: column;

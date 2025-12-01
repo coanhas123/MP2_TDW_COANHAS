@@ -1,21 +1,21 @@
-// useFavorites.js - Custom hook for managing favorite flowers from regions
-// Stores favorites in localStorage and syncs across pages
-// Automatically replaces favorites without images with valid ones from API
+// useFavorites.js - Hook personalizado para gerir flores favoritas das regiões
+// Guarda favoritos no localStorage e sincroniza entre páginas
+// Substitui automaticamente favoritos sem imagens por outros válidos da API
 
 import { useState, useEffect, useCallback } from 'react';
 import { loadFavorites, saveFavorites } from './useFlowers';
 import { fetchRandomFlowers } from '../lib/regions';
 
-// Helper function to check if flower has a valid image
+// Função auxiliar para verificar se uma flor tem uma imagem válida
 function hasValidImage(flower) {
   const imageUrl = flower?.default_image?.medium_url || flower?.image;
   return Boolean(imageUrl && imageUrl.trim() !== '');
 }
 
-// Custom event to sync favorites across components
+// Evento personalizado para sincronizar favoritos entre componentes
 const FAVORITES_CHANGED_EVENT = 'favorites-changed';
 
-// Function to trigger favorites sync
+// Função para disparar sincronização de favoritos
 function triggerFavoritesSync() {
   window.dispatchEvent(new CustomEvent(FAVORITES_CHANGED_EVENT));
 }
@@ -24,40 +24,40 @@ export default function useFavorites() {
   const [favorites, setFavorites] = useState([]);
   const [replacingFavorites, setReplacingFavorites] = useState(false);
 
-  // Function to replace favorites without images with valid ones from API
+  // Função para substituir favoritos sem imagens por outros válidos da API
   const replaceFavoritesWithoutImages = useCallback(async (favoritesNeedingReplacement) => {
     if (favoritesNeedingReplacement.length === 0) return;
 
-    console.log(`[useFavorites] Replacing ${favoritesNeedingReplacement.length} favorites without images...`);
+    console.log(`[useFavorites] A substituir ${favoritesNeedingReplacement.length} favoritos sem imagens...`);
     setReplacingFavorites(true);
 
     try {
-      // Fetch enough flowers to replace the ones without images
+      // Procurar flores suficientes para substituir as que não têm imagens
       const replacementCount = Math.max(favoritesNeedingReplacement.length, 5);
       const apiFlowers = await fetchRandomFlowers(null, replacementCount);
       
-      // Filter to only flowers with valid images
+      // Filtrar apenas flores com imagens válidas
       const validReplacements = apiFlowers.filter(hasValidImage);
       
       if (validReplacements.length === 0) {
-        console.warn('[useFavorites] No valid replacement flowers found from API');
+        console.warn('[useFavorites] Não foram encontradas flores válidas para substituição na API');
         return;
       }
 
       setFavorites(current => {
         const replaced = current.map(fav => {
           if (!hasValidImage(fav)) {
-            // Find the original favorite in the list
+            // Encontrar o favorito original na lista
             const needsReplacement = favoritesNeedingReplacement.find(f => f.id === fav.id);
             if (needsReplacement && validReplacements.length > 0) {
-              // Get a replacement and keep the original ID
+              // Obter uma substituição e manter o ID original
               const replacement = validReplacements.pop();
-              console.log(`[useFavorites] Replacing ${fav.common_name || fav.name} with ${replacement.common_name || replacement.name}`);
+              console.log(`[useFavorites] A substituir ${fav.common_name || fav.name} por ${replacement.common_name || replacement.name}`);
               
-              // Keep the original ID and merge with replacement data
+              // Manter o ID original e combinar com os dados da substituição
               return {
                 ...replacement,
-                id: fav.id, // Keep original ID
+                id: fav.id, 
                 name: fav.common_name || fav.name || replacement.common_name || replacement.name,
                 common_name: fav.common_name || fav.name || replacement.common_name || replacement.name,
                 scientific: fav.scientific_name || fav.scientific || replacement.scientific_name || replacement.scientific,
@@ -71,68 +71,68 @@ export default function useFavorites() {
         return replaced;
       });
     } catch (err) {
-      console.error('[useFavorites] Error replacing favorites without images:', err);
+      console.error('[useFavorites] Erro ao substituir favoritos sem imagens:', err);
     } finally {
       setReplacingFavorites(false);
     }
   }, []);
 
-  // Load favorites from localStorage
+  // Carregar favoritos do localStorage
   const loadFavoritesFromStorage = useCallback(() => {
     const loaded = loadFavorites();
-    console.log('[useFavorites] Loading from storage, found:', loaded.length, 'favorites');
+    console.log('[useFavorites] A carregar do armazenamento, encontrados:', loaded.length, 'favoritos');
     
-    // Check for favorites without images
+    // Verificar favoritos sem imagens
     const withoutImages = loaded.filter(fav => !hasValidImage(fav));
     if (withoutImages.length > 0) {
-      console.log('[useFavorites] Found', withoutImages.length, 'favorites without images, will replace');
-      // Replace them asynchronously
+      console.log('[useFavorites] Encontrados', withoutImages.length, 'favoritos sem imagens, serão substituídos');
+      // Substituí-los de forma assíncrona
       replaceFavoritesWithoutImages(withoutImages);
     }
     
-    // Filter out favorites without images and update state
+    // Filtrar favoritos sem imagens e actualizar o estado
     const validFavorites = loaded.filter(hasValidImage);
-    console.log('[useFavorites] Reloading favorites from storage:', validFavorites.length, 'valid favorites');
-    console.log('[useFavorites] Valid favorites:', validFavorites.map(f => ({
+    console.log('[useFavorites] A recarregar favoritos do armazenamento:', validFavorites.length, 'favoritos válidos');
+    console.log('[useFavorites] Favoritos válidos:', validFavorites.map(f => ({
       id: f.id,
       name: f.common_name || f.name,
       scientific: f.scientific_name || f.scientific
     })));
     
-    // Force state update
+    // Forçar actualização do estado
     setFavorites(validFavorites);
     return validFavorites;
   }, [replaceFavoritesWithoutImages]);
 
-  // Load favorites on mount and when storage changes
+  // Carregar favoritos ao inicializar e quando o armazenamento muda
   useEffect(() => {
     const loaded = loadFavorites();
-    console.log('[useFavorites] Initial load from storage:', loaded.length, 'favorites');
+    console.log('[useFavorites] Carregamento inicial do armazenamento:', loaded.length, 'favoritos');
     
-    // Check for favorites without images on mount
+    // Verificar favoritos sem imagens ao inicializar
     const withoutImages = loaded.filter(fav => !hasValidImage(fav));
     if (withoutImages.length > 0) {
-      console.log('[useFavorites] Found', withoutImages.length, 'favorites without images, replacing...');
+      console.log('[useFavorites] Encontrados', withoutImages.length, 'favoritos sem imagens, a substituir...');
       replaceFavoritesWithoutImages(withoutImages);
     }
     
-    // Set initial favorites (only valid ones)
+    // Definir favoritos iniciais (apenas os válidos)
     const validFavorites = loaded.filter(hasValidImage);
-    console.log('[useFavorites] Setting initial favorites:', validFavorites.length, 'valid favorites');
+    console.log('[useFavorites] A definir favoritos iniciais:', validFavorites.length, 'favoritos válidos');
     setFavorites(validFavorites);
-  }, []); // Only run on mount
+  }, []); // Executar apenas ao inicializar
 
-  // Listen for changes from other tabs/components
+  // Verificar mudanças de outros separadores/componentes
   useEffect(() => {
     const handleStorageChange = () => {
-      console.log('[useFavorites] Storage change detected, reloading...');
+      console.log('[useFavorites] Mudança no armazenamento detectada, a recarregar...');
       loadFavoritesFromStorage();
     };
 
-    // Listen to custom event for same-tab sync
+    // Verificar evento personalizado para sincronização no mesmo separador
     window.addEventListener(FAVORITES_CHANGED_EVENT, handleStorageChange);
     
-    // Listen to storage events (for cross-tab sync)
+    // Verificar eventos de armazenamento (para sincronização entre separadores)
     window.addEventListener('storage', handleStorageChange);
 
     return () => {
@@ -141,50 +141,50 @@ export default function useFavorites() {
     };
   }, [loadFavoritesFromStorage]);
 
-  // Save favorites whenever they change (but skip if we just saved in addFavorite)
+  // Guardar favoritos sempre que mudarem (mas saltar se acabámos de guardar em addFavorite)
   useEffect(() => {
-    // Skip if favorites array is empty (initial load)
+    // Saltar se o array de favoritos estiver vazio (carregamento inicial)
     if (favorites.length === 0) {
       return;
     }
     
-    // Always save favorites (even if empty) - only save favorites with valid images
+    // Sempre guardar favoritos (mesmo se vazio) - apenas guardar favoritos com imagens válidas
     const validFavorites = favorites.filter(hasValidImage);
-    console.log('[useFavorites] useEffect: Saving favorites to localStorage:', validFavorites.length, 'favorites');
+    console.log('[useFavorites] useEffect: A guardar favoritos no localStorage:', validFavorites.length, 'favoritos');
     
-    // Only save if different from what's in storage (avoid unnecessary writes)
+    // Apenas guardar se for diferente do que está no armazenamento (evitar escritas desnecessárias)
     const currentSaved = loadFavorites();
     if (currentSaved.length === validFavorites.length) {
-      // Check if they're the same
+      // Verificar se são iguais
       const same = validFavorites.every(fav => {
         return currentSaved.some(saved => saved.id === fav.id);
       });
       if (same) {
-        console.log('[useFavorites] Favorites unchanged, skipping save');
+        console.log('[useFavorites] Favoritos inalterados, a saltar guardar');
         return;
       }
     }
     
     saveFavorites(validFavorites);
     
-    // Verify save was successful
+    // Verificar se o guardar foi bem-sucedido
     const saved = loadFavorites();
-    console.log('[useFavorites] Verified saved favorites:', saved.length, 'favorites in storage');
+    console.log('[useFavorites] Favoritos guardados verificados:', saved.length, 'favoritos no armazenamento');
     
     if (saved.length !== validFavorites.length) {
-      console.error('[useFavorites] Mismatch! Tried to save', validFavorites.length, 'but found', saved.length, 'in storage');
+      console.error('[useFavorites] Incompatibilidade! Tentámos guardar', validFavorites.length, 'mas encontramos', saved.length, 'no armazenamento');
     }
     
-    // Trigger sync event after a small delay to ensure localStorage is written
+    // Disparar evento de sincronização após um pequeno atraso para garantir que o localStorage foi escrito
     setTimeout(() => {
-      console.log('[useFavorites] Triggering favorites sync event');
+      console.log('[useFavorites] A disparar evento de sincronização de favoritos');
       triggerFavoritesSync();
     }, 100);
   }, [favorites]);
 
-  // Add a flower to favorites
+  // Adicionar uma flor aos favoritos
   const addFavorite = useCallback((flower) => {
-    console.log('[useFavorites] addFavorite called with:', {
+    console.log('[useFavorites] addFavorite chamado com:', {
       name: flower?.common_name || flower?.name,
       scientific: flower?.scientific_name || flower?.scientific,
       hasDefaultImage: !!flower?.default_image,
@@ -195,15 +195,15 @@ export default function useFavorites() {
     });
     
     const imageValid = hasValidImage(flower);
-    console.log('[useFavorites] Image validation result:', imageValid);
+    console.log('[useFavorites] Resultado da validação da imagem:', imageValid);
     
     if (!imageValid) {
-      console.warn('[useFavorites] Cannot add flower without image to favorites');
-      console.warn('[useFavorites] Flower structure:', JSON.stringify(flower, null, 2));
+      console.warn('[useFavorites] Não é possível adicionar flor sem imagem aos favoritos');
+      console.warn('[useFavorites] Estrutura da flor:', JSON.stringify(flower, null, 2));
       return false;
     }
 
-    // Normalize scientific name for comparison
+    // Normalizar nome científico para comparação
     const normalizeScientificName = (name) => {
       if (!name) return '';
       return String(name).trim().toLowerCase();
@@ -211,22 +211,22 @@ export default function useFavorites() {
 
     const flowerScientificName = normalizeScientificName(flower.scientific_name || flower.scientific);
 
-    // Get current favorites state
+    // Obter estado actual dos favoritos
     setFavorites(currentFavorites => {
-      console.log('[useFavorites] Current favorites count:', currentFavorites.length);
+      console.log('[useFavorites] Contagem actual de favoritos:', currentFavorites.length);
       
-      // Check if already in favorites (by scientific_name as unique identifier)
+      // Verificar se já está nos favoritos 
       const isAlreadyFavorite = currentFavorites.some(fav => {
         const favScientificName = normalizeScientificName(fav.scientific_name || fav.scientific);
         return favScientificName === flowerScientificName && favScientificName !== '';
       });
 
       if (isAlreadyFavorite) {
-        console.log('[useFavorites] Flower already in favorites:', flower.scientific_name || flower.scientific);
-        return currentFavorites; // Already in favorites
+        console.log('[useFavorites] Flor já está nos favoritos:', flower.scientific_name || flower.scientific);
+        return currentFavorites; 
       }
 
-      // Create a copy with proper structure
+      // Criar uma cópia com estrutura adequada
       const favoriteFlower = {
         ...flower,
         id: `favorite-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -239,8 +239,8 @@ export default function useFavorites() {
       };
 
       const updatedFavorites = [...currentFavorites, favoriteFlower];
-      console.log('[useFavorites] Added favorite. New count:', updatedFavorites.length);
-      console.log('[useFavorites] Favorite details:', {
+      console.log('[useFavorites] Favorito adicionado. Nova contagem:', updatedFavorites.length);
+      console.log('[useFavorites] Detalhes do favorito:', {
         id: favoriteFlower.id,
         name: favoriteFlower.common_name,
         scientific: favoriteFlower.scientific_name,
@@ -248,16 +248,16 @@ export default function useFavorites() {
         image: favoriteFlower.image || favoriteFlower.default_image?.medium_url
       });
       
-      // Immediately save to localStorage to ensure it's persisted
+      // Guardar imediatamente no localStorage para garantir que é persistido
       const validUpdated = updatedFavorites.filter(hasValidImage);
-      console.log('[useFavorites] Saving', validUpdated.length, 'favorites to localStorage immediately');
+      console.log('[useFavorites] A guardar', validUpdated.length, 'favoritos no localStorage imediatamente');
       saveFavorites(validUpdated);
       
-      // Verify it was saved
+      // Verificar se foi guardado
       const saved = loadFavorites();
-      console.log('[useFavorites] Verification: saved', saved.length, 'favorites to localStorage');
+      console.log('[useFavorites] Verificação: guardados', saved.length, 'favoritos no localStorage');
       
-      // Trigger sync event
+      // Disparar evento de sincronização
       setTimeout(() => {
         triggerFavoritesSync();
       }, 50);
@@ -268,20 +268,20 @@ export default function useFavorites() {
     return true;
   }, []);
 
-  // Remove a flower from favorites
+  // Remover uma flor dos favoritos
   const removeFavorite = useCallback((flowerId) => {
     setFavorites(currentFavorites => {
       const updated = currentFavorites.filter(fav => fav.id !== flowerId);
-      console.log('[useFavorites] Removed favorite. Remaining count:', updated.length);
+      console.log('[useFavorites] Favorito removido. Contagem restante:', updated.length);
       return updated;
     });
   }, []);
 
-  // Check if a flower is in favorites
+  // Verificar se uma flor está nos favoritos
   const isFavorite = useCallback((flower) => {
     if (!flower) return false;
     
-    // Normalize scientific name for comparison
+    // Normalizar nome científico para comparação
     const normalizeScientificName = (name) => {
       if (!name) return '';
       return String(name).trim().toLowerCase();
@@ -295,7 +295,7 @@ export default function useFavorites() {
       return favScientificName === flowerScientificName && favScientificName !== '';
     });
     
-    console.log('[useFavorites] isFavorite check:', {
+    console.log('[useFavorites] Verificação isFavorite:', {
       flowerName: flower.common_name || flower.name,
       scientific: flower.scientific_name || flower.scientific,
       isFavorite: isFav,

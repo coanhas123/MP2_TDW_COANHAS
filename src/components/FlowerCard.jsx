@@ -1,6 +1,6 @@
 // Componente de cartão individual de flor
 // Exibe imagem, nome comum, nome científico e família
-// Clicável para abrir modal de detalhes; opcionalmente pode ter botão de remoção
+// Clicável para abrir modal de detalhes e botão de remoção
 import { useState } from 'react';
 
 export default function FlowerCard({ flower, onRemove, onClick }) {
@@ -40,7 +40,7 @@ export default function FlowerCard({ flower, onRemove, onClick }) {
       role="button"
       aria-label={`View details for ${name}`}
     >
-      {/* Remove Button (only shown if onRemove is provided) */}
+      {/* Botão remover */}
       {onRemove && (
         <button
           className="card-remove"
@@ -52,7 +52,7 @@ export default function FlowerCard({ flower, onRemove, onClick }) {
         </button>
       )}
 
-      {/* Image Section */}
+      {/* Secção de imagem */}
       <div className="card-image">
         {imageUrl && !imageError ? (
           <img 
@@ -68,17 +68,17 @@ export default function FlowerCard({ flower, onRemove, onClick }) {
         )}
       </div>
 
-      {/* Content Section */}
+      {/* Secção de conteúdo */}
       <div className="card-content">
         {/* Meta: Family */}
         <div className="card-meta">
           {family && <span className="card-family">{family}</span>}
         </div>
 
-        {/* Flower Name */}
+        {/* Nome da planta */}
         <h3 className="card-title">{name}</h3>
 
-        {/* Scientific Name */}
+        {/* Nome científico */}
         <p className="card-scientific">{scientific}</p>
       </div>
     </article>

@@ -1,5 +1,5 @@
 // Componente principal da aplicação
-// Configura o roteamento e gestão de estado global
+// Configura o caminho das APIse gestão de estado global
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
 
@@ -26,7 +26,7 @@ function Home() {
   const { favorites, addFavorite, removeFavorite, isFavorite, reloadFavorites } = useFavorites();
   const [selectedFlower, setSelectedFlower] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [filter, setFilter] = useState('all'); // 'all' ou 'liked'
+  const [filter, setFilter] = useState('all'); 
 
   // Recarrega favoritos ao navegar para a página inicial (sincroniza com outras abas)
   useEffect(() => {
@@ -36,7 +36,7 @@ function Home() {
     }
   }, [location.pathname, reloadFavorites]);
 
-  // Also listen for favorites changes from other pages
+  
   useEffect(() => {
     const handleFavoritesChange = () => {
       console.log('[Home] Favorites changed event received, reloading...');
@@ -66,7 +66,7 @@ function Home() {
     console.log('[Home] Adding flower to favorites:', flower?.common_name || flower?.name);
     const result = addFavorite(flower);
     if (result) {
-      // Force reload favorites to ensure UI updates
+      
       setTimeout(() => {
         reloadFavorites();
         console.log('[Home] Reloaded favorites after adding');
@@ -88,7 +88,6 @@ function Home() {
     ? favorites.filter(hasValidImage)
     : userPlants;
 
-  // Debug: Log favorites when they change
   useEffect(() => {
     console.log('[Home] Favorites updated:', favorites.length, 'favorites');
     console.log('[Home] Filter:', filter);
@@ -103,11 +102,11 @@ function Home() {
     }
   }, [favorites, filter, displayedFlowers]);
   
-  // Force reload when switching to liked tab
+ 
   const handleFilterChange = (newFilter) => {
     console.log('[Home] Changing filter from', filter, 'to', newFilter);
     if (newFilter === 'liked') {
-      // Reload favorites when switching to liked tab
+    
       reloadFavorites();
     }
     setFilter(newFilter);
@@ -191,10 +190,10 @@ function Home() {
   );
 }
 
-// Componente raiz - Configura roteamento da aplicação
+// Componente raiz - Configura o caminho da API da aplicação
 // Rotas: "/" (coleção), "/regions" (mapa), "/region/:region" (flores da região)
 export default function App() {
-  // Base path para GitHub Pages (deve corresponder ao vite.config.js)
+
   const basename = import.meta.env.PROD ? '/MP2_TDW_COANHAS' : '';
   
   return (

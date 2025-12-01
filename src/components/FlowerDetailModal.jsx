@@ -1,6 +1,6 @@
 // FlowerDetailModal.jsx - Widget modal que mostra informações detalhadas sobre flores
 // Exibe: nome científico, nome comum, categoria taxonómica, estado de conservação, imagens
-// Inclui o botão «Adicionar à minha coleção» para favoritos
+// Inclui o botão adicionar à minha coleção e favoritos
 // Aprimorado com a API GBIF para informações adicionais
 
 import { useState, useEffect } from 'react';
@@ -10,7 +10,7 @@ export default function FlowerDetailModal({ flower, isOpen, onClose, onAddToColl
   const [gbifData, setGbifData] = useState(null);
   const [loadingGBIF, setLoadingGBIF] = useState(false);
 
-  // Load GBIF data when flower changes
+  // Load GBIF data quando as plantas mudam
   useEffect(() => {
     if (isOpen && flower && flower.scientific_name) {
       setLoadingGBIF(true);
@@ -73,7 +73,7 @@ export default function FlowerDetailModal({ flower, isOpen, onClose, onAddToColl
     }
   };
 
-  // Build taxonomic hierarchy
+  // construção da taxonomia hierarquica
   const taxonomicHierarchy = flower.taxonomic_hierarchy || [];
   const conservationStatus = [];
   
@@ -86,7 +86,7 @@ export default function FlowerDetailModal({ flower, isOpen, onClose, onAddToColl
     ? conservationStatus.join(', ') 
     : 'Not specified';
 
-  // Get vernacular names (common names) from GBIF
+  // recolhe os nomes vernaculares
   const commonNames = gbifData?.vernacularNames || [];
   const englishNames = commonNames.filter(v => v.language === 'eng').map(v => v.vernacularName);
   const allCommonNames = [...new Set(commonNames.map(v => v.vernacularName))];
@@ -99,7 +99,7 @@ export default function FlowerDetailModal({ flower, isOpen, onClose, onAddToColl
       tabIndex={-1}
     >
       <div className="modal-content" role="dialog" aria-labelledby="modal-title">
-        {/* Close Button */}
+        {/* botão de fechar */}
         <button 
           className="modal-close"
           onClick={onClose}
@@ -116,7 +116,7 @@ export default function FlowerDetailModal({ flower, isOpen, onClose, onAddToColl
           </h2>
           <p className="modal-subtitle">{flower.scientific_name || flower.scientific || ''}</p>
           
-          {/* Additional Common Names from GBIF */}
+          {/* Adicionar nomes comuns */}
           {englishNames.length > 0 && (
             <p className="modal-common-names">
               Also known as: {englishNames.slice(0, 3).join(', ')}
@@ -125,9 +125,9 @@ export default function FlowerDetailModal({ flower, isOpen, onClose, onAddToColl
           )}
         </div>
 
-        {/* Action Buttons - After name, before images */}
+      
         <div className="modal-actions-section">
-          {/* Like Button (Favorites) */}
+          {/* Liked */}
           {onAddToCollection && (
             <>
               {!isInCollection ? (
@@ -146,7 +146,7 @@ export default function FlowerDetailModal({ flower, isOpen, onClose, onAddToColl
             </>
           )}
           
-          {/* Add to My Flowers Button (Personal Collection) */}
+          {/* coleção pessoal */}
           {onAddToMyFlowers && (
             <>
               {!isInMyFlowers ? (
@@ -166,7 +166,7 @@ export default function FlowerDetailModal({ flower, isOpen, onClose, onAddToColl
           )}
         </div>
 
-        {/* Images Gallery */}
+        {/* galeria de imagens */}
         {(flower.all_images && flower.all_images.length > 0) || (gbifData?.media && gbifData.media.length > 0) ? (
           <div className="modal-images">
             <h3 className="modal-section-title">Images</h3>
@@ -181,7 +181,7 @@ export default function FlowerDetailModal({ flower, isOpen, onClose, onAddToColl
                   />
                 </div>
               ))}
-              {/* GBIF media images */}
+              {/* imagens de GBIF  */}
               {gbifData?.media?.filter(m => m.type === 'StillImage').slice(0, 3).map((media, idx) => (
                 <div key={`gbif-${idx}`} className="gallery-item">
                   <img 
@@ -198,9 +198,8 @@ export default function FlowerDetailModal({ flower, isOpen, onClose, onAddToColl
           </div>
         ) : null}
 
-        {/* Information Grid */}
+        {/* grelha de informação*/}
         <div className="modal-info">
-          {/* Taxonomic Category */}
           {(taxonomicHierarchy.length > 0 || gbifData) && (
             <div className="info-section">
               <h3 className="modal-section-title">Taxonomic Category</h3>
@@ -211,7 +210,6 @@ export default function FlowerDetailModal({ flower, isOpen, onClose, onAddToColl
                     <span className="taxonomic-name">{level.name}</span>
                   </div>
                 ))}
-                {/* GBIF taxonomic information (if available and different) */}
                 {gbifData && (
                   <>
                     {gbifData.phylum && !taxonomicHierarchy.some(t => t.rank === 'Phylum') && (
@@ -232,7 +230,6 @@ export default function FlowerDetailModal({ flower, isOpen, onClose, onAddToColl
             </div>
           )}
 
-          {/* Species Descriptions from GBIF */}
           {gbifData?.descriptions && gbifData.descriptions.length > 0 && (
             <div className="info-section">
               <h3 className="modal-section-title">Description</h3>
@@ -249,7 +246,7 @@ export default function FlowerDetailModal({ flower, isOpen, onClose, onAddToColl
             </div>
           )}
 
-          {/* Conservation Status */}
+          
           <div className="info-section">
             <h3 className="modal-section-title">Conservation Status</h3>
             <p className="status-text">{statusText}</p>
@@ -265,7 +262,7 @@ export default function FlowerDetailModal({ flower, isOpen, onClose, onAddToColl
             )}
           </div>
 
-          {/* Occurrence Data from GBIF */}
+  
           {gbifData && typeof gbifData.occurrenceCount === 'number' && (
             <div className="info-section">
               <h3 className="modal-section-title">Global Observations</h3>
@@ -276,7 +273,7 @@ export default function FlowerDetailModal({ flower, isOpen, onClose, onAddToColl
             </div>
           )}
 
-          {/* Additional Info */}
+  
           {flower.family || gbifData?.family ? (
             <div className="info-section">
               <h3 className="modal-section-title">Family</h3>
@@ -308,7 +305,7 @@ export default function FlowerDetailModal({ flower, isOpen, onClose, onAddToColl
             </div>
           )}
 
-          {/* Loading indicator for GBIF */}
+         
           {loadingGBIF && (
             <div className="info-section">
               <p className="info-subtext">Loading additional information...</p>
