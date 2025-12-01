@@ -31,9 +31,26 @@ function Home() {
   // Recarrega favoritos ao navegar para a página inicial (sincroniza com outras abas)
   useEffect(() => {
     if (location.pathname === '/') {
+      console.log('[Home] Reloading favorites on page load');
       reloadFavorites();
     }
   }, [location.pathname, reloadFavorites]);
+
+  // Also listen for favorites changes from other pages
+  useEffect(() => {
+    const handleFavoritesChange = () => {
+      console.log('[Home] Favorites changed event received, reloading...');
+      reloadFavorites();
+    };
+    
+    window.addEventListener('favorites-changed', handleFavoritesChange);
+    window.addEventListener('storage', handleFavoritesChange);
+    
+    return () => {
+      window.removeEventListener('favorites-changed', handleFavoritesChange);
+      window.removeEventListener('storage', handleFavoritesChange);
+    };
+  }, [reloadFavorites]);
 
   const handleCardClick = (flower) => {
     setSelectedFlower(flower);
@@ -46,7 +63,15 @@ function Home() {
   };
 
   const handleAddToCollection = (flower) => {
+    console.log('[Home] Adding flower to favorites:', flower?.common_name || flower?.name);
     const result = addFavorite(flower);
+    if (result) {
+      // Force reload favorites to ensure UI updates
+      setTimeout(() => {
+        reloadFavorites();
+        console.log('[Home] Reloaded favorites after adding');
+      }, 100);
+    }
     return result;
   };
 
@@ -62,6 +87,31 @@ function Home() {
   const displayedFlowers = filter === 'liked' 
     ? favorites.filter(hasValidImage)
     : userPlants;
+
+  // Debug: Log favorites when they change
+  useEffect(() => {
+    console.log('[Home] Favorites updated:', favorites.length, 'favorites');
+    console.log('[Home] Filter:', filter);
+    console.log('[Home] Displayed flowers:', displayedFlowers.length);
+    if (filter === 'liked') {
+      console.log('[Home] Liked favorites:', favorites.map(f => ({
+        id: f.id,
+        name: f.common_name || f.name,
+        scientific: f.scientific_name || f.scientific,
+        hasImage: hasValidImage(f)
+      })));
+    }
+  }, [favorites, filter, displayedFlowers]);
+  
+  // Force reload when switching to liked tab
+  const handleFilterChange = (newFilter) => {
+    console.log('[Home] Changing filter from', filter, 'to', newFilter);
+    if (newFilter === 'liked') {
+      // Reload favorites when switching to liked tab
+      reloadFavorites();
+    }
+    setFilter(newFilter);
+  };
 
   // Handler de remoção funciona para ambas as coleções
   const handleRemove = filter === 'all' ? removeFlower : (id) => removeFavorite(id);
@@ -95,14 +145,14 @@ function Home() {
       <div className="collection-filters">
         <button
           className={`filter-tab ${filter === 'all' ? 'active' : ''}`}
-          onClick={() => setFilter('all')}
+          onClick={() => handleFilterChange('all')}
           type="button"
         >
           My Flowers
         </button>
         <button
           className={`filter-tab ${filter === 'liked' ? 'active' : ''}`}
-          onClick={() => setFilter('liked')}
+          onClick={() => handleFilterChange('liked')}
           type="button"
         >
           Liked

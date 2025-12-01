@@ -142,10 +142,27 @@ export default function RegionPlants() {
   };
 
   const handleAddToCollection = (flower) => {
+    console.log('[RegionPlants] handleAddToCollection called with flower:', {
+      name: flower?.common_name || flower?.name,
+      scientific: flower?.scientific_name || flower?.scientific,
+      hasImage: hasValidImage(flower),
+      image: flower?.default_image?.medium_url || flower?.image,
+      fullFlower: flower
+    });
+    
     const added = addFavorite(flower);
+    console.log('[RegionPlants] addFavorite returned:', added);
+    
     if (added) {
-      setTimeout(() => reloadFavorites(), 200);
+      console.log('[RegionPlants] Favorite added successfully, reloading...');
+      setTimeout(() => {
+        reloadFavorites();
+        console.log('[RegionPlants] Favorites reloaded');
+      }, 200);
+    } else {
+      console.warn('[RegionPlants] Failed to add favorite. Check if flower has valid image.');
     }
+    
     return added;
   };
 

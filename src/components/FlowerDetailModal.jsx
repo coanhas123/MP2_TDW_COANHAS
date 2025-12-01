@@ -44,10 +44,26 @@ export default function FlowerDetailModal({ flower, isOpen, onClose, onAddToColl
 
   const handleAddToCollection = () => {
     if (onAddToCollection) {
+      console.log('[FlowerDetailModal] handleAddToCollection called, flower:', {
+        name: flower?.common_name || flower?.name,
+        scientific: flower?.scientific_name || flower?.scientific,
+        hasDefaultImage: !!flower?.default_image,
+        hasImage: !!flower?.image,
+        defaultImageUrl: flower?.default_image?.medium_url,
+        imageUrl: flower?.image
+      });
+      
       const added = onAddToCollection(flower);
+      console.log('[FlowerDetailModal] onAddToCollection returned:', added);
+      
       if (added) {
+        console.log('[FlowerDetailModal] Successfully added to collection');
         // Could show a success message here
+      } else {
+        console.warn('[FlowerDetailModal] Failed to add to collection');
       }
+    } else {
+      console.warn('[FlowerDetailModal] onAddToCollection prop not provided');
     }
   };
 

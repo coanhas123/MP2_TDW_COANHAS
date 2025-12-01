@@ -1,5 +1,5 @@
-// Integração com API iNaturalist para observações de flores
-// API gratuita, não requer chave. Foca apenas em flores, agrupadas por espécie
+// Informação principal sobre plantas das diferentes regiões como: Observações de plantas com flores por região, Fotos das flores, Nomes comuns e científicos e Hierarquia taxonómica básica
+
 const INATURALIST_PLACES = {
   europa: 97391,
   asia: 97395,
@@ -67,11 +67,11 @@ function writeCache(key, value) {
   try {
     localStorage.setItem(key, JSON.stringify({ ts: Date.now(), value }));
   } catch (e) {
-    // ignore quota errors
+   
   }
 }
 
-// Shuffle array randomly
+// criação de uma array que gera random
 function shuffleArray(array) {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -81,7 +81,7 @@ function shuffleArray(array) {
   return shuffled;
 }
 
-// Extract taxonomic hierarchy from ancestors
+// através dos ancestrais cria a taxonomia hierarquica
 function extractTaxonomicHierarchy(taxon) {
   if (!taxon.ancestors || !Array.isArray(taxon.ancestors)) {
     return [];
@@ -99,7 +99,6 @@ function extractTaxonomicHierarchy(taxon) {
     }
   });
 
-  // Add the current taxon if it's a species
   if (taxon.rank === 'species' && taxon.name) {
     hierarchy.push({
       rank: 'Species',
@@ -110,16 +109,11 @@ function extractTaxonomicHierarchy(taxon) {
   return hierarchy;
 }
 
-// =============================================================================
-// FETCH REGION PLANTS - Uses iNaturalist API with flowering plant filter
-// Groups by SPECIES and extracts all available data
-// Supports pagination for "Load More" functionality
-// =============================================================================
+// Cria a separação por região
 
 export async function fetchRegionPlants(region, apiKey, type = 'all', page = 1, skipCache = false) {
   const cacheKey = `inat_region_v2_${region}_page${page}`;
 
-  // Check cache first (unless skipCache is true)
   if (!skipCache) {
     const cached = readCache(cacheKey);
     if (cached && cached.length > 0) {
@@ -135,16 +129,15 @@ export async function fetchRegionPlants(region, apiKey, type = 'all', page = 1, 
   }
 
   try {
-    // iNaturalist API - filter by place, flowering plants (term_id=12), with photos
-    // term_id=12 = Plant Phenology: Flowering
-    // Use sequential pages for predictable pagination
-    // Each page request fetches from a sequential page number
-    const pageNumber = page; // Use the page parameter directly for sequential pagination
+   //chamada da API filtra por um lugar específico (país)
+   //term_id = 12 determina a Fenologia da Planta: Florindo
+
+    const pageNumber = page; 
 
     const url = `${INATURALIST_BASE}/observations?` + new URLSearchParams({
       place_id: regionInfo.placeId.toString(),
       iconic_taxa: 'Plantae',
-      term_id: '12', // Flowering phenology
+      term_id: '12', 
       photos: 'true',
       quality_grade: 'research,needs_id',
       per_page: '100',
@@ -167,18 +160,18 @@ export async function fetchRegionPlants(region, apiKey, type = 'all', page = 1, 
     
     console.log(`[iNaturalist] Got ${results.length} results for ${region}`);
 
-    // Group by species (deduplicate by scientific name)
+   
     const speciesMap = new Map();
 
     for (const item of results) {
-      // Get species info from taxon
+      
       const taxon = item.taxon;
       if (!taxon) continue;
       
       const speciesName = taxon.name;
       if (!speciesName) continue;
 
-      // Get all images from this observation
+      //recolhe as imagens desta observação
       const images = [];
       if (item.photos && item.photos.length > 0) {
         item.photos.forEach(photo => {
@@ -189,24 +182,22 @@ export async function fetchRegionPlants(region, apiKey, type = 'all', page = 1, 
         });
       }
       
-      // Add taxon default photo if available
+      // e existir uma imagem padrão adiciona quando a imagen não é valida 
       if (taxon.default_photo?.medium_url && !images.includes(taxon.default_photo.medium_url)) {
         images.push(taxon.default_photo.medium_url);
       }
 
-      if (images.length === 0) continue; // Skip if no images
+      if (images.length === 0) continue; //Saltar se não existir imagem
 
-      // If species already exists, merge images
+      // Se a imagem já existir unir-las
       if (speciesMap.has(speciesName)) {
         const existing = speciesMap.get(speciesName);
-        // Merge images (avoid duplicates)
         images.forEach(img => {
           if (!existing.all_images.includes(img)) {
             existing.all_images.push(img);
           }
         });
       } else {
-        // Create new species entry
         const taxonomicHierarchy = extractTaxonomicHierarchy(taxon);
         
         speciesMap.set(speciesName, {
@@ -231,22 +222,20 @@ export async function fetchRegionPlants(region, apiKey, type = 'all', page = 1, 
       }
     }
 
-    // Convert map to array and shuffle
+
     const plants = Array.from(speciesMap.values());
     const shuffled = shuffleArray(plants);
     const result = shuffled.slice(0, CARDS_PER_BATCH);
     
     console.log(`[iNaturalist] Returning ${result.length} flower species for ${region} (page ${page}, requested ${CARDS_PER_BATCH})`);
 
-    // If we got fewer than requested, try fetching more pages until we have enough
-    // This ensures "See More" always returns the full batch size
+    // garantir que as 20 cartas são todas preenchidas
     if (result.length < CARDS_PER_BATCH && results.length >= 100) {
-      // Only try additional pages if the current page returned a full batch (100 results)
-      // This suggests there might be more data available
+      // Garantir que existe sempre continuidade
       console.log(`[iNaturalist] Only got ${result.length} unique flowers, but page had ${results.length} results. This is normal for species deduplication.`);
     }
 
-    // Cache the results
+
     if (result.length > 0) {
       writeCache(cacheKey, result);
     }
@@ -258,9 +247,7 @@ export async function fetchRegionPlants(region, apiKey, type = 'all', page = 1, 
   }
 }
 
-// =============================================================================
-// FETCH RANDOM FLOWERS (for home page)
-// =============================================================================
+// Random plantas na home page
 
 export async function fetchRandomFlowers(apiKey, count = 12) {
   try {
@@ -278,7 +265,7 @@ export async function fetchRandomFlowers(apiKey, count = 12) {
       const url = `${INATURALIST_BASE}/observations?` + new URLSearchParams({
         place_id: regionInfo.placeId.toString(),
         iconic_taxa: 'Plantae',
-        term_id: '12', // Flowering
+        term_id: '12', 
         photos: 'true',
         quality_grade: 'research',
         per_page: '50',
@@ -301,7 +288,7 @@ export async function fetchRandomFlowers(apiKey, count = 12) {
           const speciesName = taxon.name;
           if (!speciesName) continue;
           
-          // Get all images from this observation
+          
           const images = [];
           if (item.photos && item.photos.length > 0) {
             item.photos.forEach(photo => {
@@ -312,19 +299,19 @@ export async function fetchRandomFlowers(apiKey, count = 12) {
             });
           }
           
-          // Add taxon default photo if available
+          // Obter uma imagem default se existir
           if (taxon.default_photo?.medium_url && !images.includes(taxon.default_photo.medium_url)) {
             images.push(taxon.default_photo.medium_url);
           }
           
-          if (images.length === 0) continue; // Skip if no images
+          if (images.length === 0) continue; // saltar se não existir imagem
 
           const taxonomicHierarchy = extractTaxonomicHierarchy(taxon);
           
-          // If species already exists, merge images
+         
           if (speciesMap.has(speciesName)) {
             const existing = speciesMap.get(speciesName);
-            // Merge images (avoid duplicates)
+      
             images.forEach(img => {
               if (!existing.all_images.includes(img)) {
                 existing.all_images.push(img);
@@ -335,8 +322,8 @@ export async function fetchRandomFlowers(apiKey, count = 12) {
               id: item.id || `inat-home-${speciesMap.size}`,
               common_name: taxon.preferred_common_name || taxon.name?.split(' ')[0] || 'Unknown',
               scientific_name: speciesName,
-              default_image: { medium_url: images[0] }, // First image for card
-              all_images: images, // All images for modal
+              default_image: { medium_url: images[0] }, 
+              all_images: images, 
               family: taxon.ancestors?.find(a => a.rank === 'family')?.name 
                    || taxon.iconic_taxon_name 
                    || 'Plantae',
@@ -344,7 +331,6 @@ export async function fetchRandomFlowers(apiKey, count = 12) {
               country: item.place_guess || null,
               observed_on: item.observed_on || null,
               taxonomic_hierarchy: taxonomicHierarchy,
-              // Conservation status
               threatened: taxon.threatened || item.threatened || false,
               endemic: taxon.endemic || item.endemic || false,
               native: taxon.native !== false && item.native !== false,
@@ -357,7 +343,7 @@ export async function fetchRandomFlowers(apiKey, count = 12) {
       }
     }
 
-    // Convert to array, shuffle and return
+    // converter numa array e misturar 
     const flowers = Array.from(speciesMap.values());
     const shuffled = shuffleArray(flowers);
     return shuffled.slice(0, count);

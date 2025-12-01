@@ -1,11 +1,8 @@
-// =================================================================
-// gbif.js - GBIF (Global Biodiversity Information Facility) API integration
-// NO API KEY REQUIRED - Completely free!
-// Provides additional detailed information about flowers/species
-// =================================================================
+// Através desta API é possivel obter informações detalhadas sobre as espécies de plantas: daqui retirei os	nomes vernaculares adicionais, as descrições das espécies, o status de conservação (IUCN), a contagem de ocorrências, as imagens adicionais e por fim as informação taxonómica completa
+
 
 const GBIF_BASE = 'https://api.gbif.org/v1';
-const CACHE_TTL = 1000 * 60 * 60 * 24; // 24 hours (GBIF data doesn't change often)
+const CACHE_TTL = 1000 * 60 * 60 * 24; 
 
 // Cache functions
 function readCache(key) {
@@ -31,9 +28,7 @@ function writeCache(key, value) {
   }
 }
 
-// =============================================================================
-// SEARCH FOR SPECIES BY SCIENTIFIC NAME
-// =============================================================================
+// procurar por especies pelo nome cientifico
 
 export async function searchSpeciesByName(scientificName) {
   if (!scientificName) return null;
@@ -71,7 +66,7 @@ export async function searchSpeciesByName(scientificName) {
       return null;
     }
 
-    // Find the best match (usually the first one, but check for exact match)
+    // Procura o melhor match (normalmente o primeiro, mas verifica se o nome cientifico é exatamente o mesmo)
     const exactMatch = results.find(r => 
       r.scientificName?.toLowerCase() === scientificName.toLowerCase() ||
       r.canonicalName?.toLowerCase() === scientificName.toLowerCase()
@@ -81,7 +76,6 @@ export async function searchSpeciesByName(scientificName) {
     
     console.log(`[GBIF] Found species: ${species.canonicalName || species.scientificName}`);
 
-    // Cache the result
     writeCache(cacheKey, species);
 
     return species;
@@ -91,16 +85,12 @@ export async function searchSpeciesByName(scientificName) {
   }
 }
 
-// =============================================================================
-// GET DETAILED SPECIES INFORMATION
-// =============================================================================
-
+// Informação especifica sobre a espécie
 export async function getSpeciesDetails(speciesKey) {
   if (!speciesKey) return null;
 
   const cacheKey = `gbif_details_${speciesKey}`;
   
-  // Check cache first
   const cached = readCache(cacheKey);
   if (cached) {
     console.log(`[GBIF] Cache hit for species key: ${speciesKey}`);
@@ -108,7 +98,7 @@ export async function getSpeciesDetails(speciesKey) {
   }
 
   try {
-    // Fetch species details
+    // recolhe informação sobre a especie
     const detailsUrl = `${GBIF_BASE}/species/${speciesKey}`;
     const detailsRes = await fetch(detailsUrl);
     
@@ -118,7 +108,7 @@ export async function getSpeciesDetails(speciesKey) {
 
     const details = await detailsRes.json();
 
-    // Fetch species descriptions
+    // recolhe descrição da especie
     const descriptionsUrl = `${GBIF_BASE}/species/${speciesKey}/descriptions`;
     let descriptions = [];
     try {
@@ -131,7 +121,7 @@ export async function getSpeciesDetails(speciesKey) {
       console.warn('[GBIF] Error fetching descriptions:', e);
     }
 
-    // Fetch media (images)
+    // procura imagens
     const mediaUrl = `${GBIF_BASE}/species/${speciesKey}/media`;
     let media = [];
     try {
@@ -144,14 +134,14 @@ export async function getSpeciesDetails(speciesKey) {
       console.warn('[GBIF] Error fetching media:', e);
     }
 
-    // Fetch distribution/occurrences count
+    // procura ocorrencias 
     const occurrencesUrl = `${GBIF_BASE}/occurrence/count?taxonKey=${speciesKey}`;
     let occurrenceCount = null;
     try {
       const occRes = await fetch(occurrencesUrl);
       if (occRes.ok) {
         const count = await occRes.json();
-        // Ensure we get a number, not null
+        // garante que tens sempre um número e nunca um elemento 0
         occurrenceCount = typeof count === 'number' ? count : null;
       }
     } catch (e) {
@@ -173,8 +163,6 @@ export async function getSpeciesDetails(speciesKey) {
       })),
       occurrenceCount: occurrenceCount,
     };
-
-    // Cache the result
     writeCache(cacheKey, enrichedDetails);
 
     return enrichedDetails;
@@ -184,9 +172,7 @@ export async function getSpeciesDetails(speciesKey) {
   }
 }
 
-// =============================================================================
-// ENRICH FLOWER DATA WITH GBIF INFORMATION
-// =============================================================================
+// enriquece a informação através da data do GBIF
 
 export async function enrichFlowerWithGBIF(flower) {
   if (!flower || !flower.scientific_name) {
@@ -194,14 +180,14 @@ export async function enrichFlowerWithGBIF(flower) {
   }
 
   try {
-    // Search for the species
+    // procura especies
     const species = await searchSpeciesByName(flower.scientific_name);
     
     if (!species || !species.key) {
       return null;
     }
 
-    // Get detailed information
+    // recolhe informação detalhada
     const details = await getSpeciesDetails(species.key);
     
     if (!details) {
@@ -222,7 +208,7 @@ export async function enrichFlowerWithGBIF(flower) {
       };
     }
 
-    // Combine all information
+    // combina toda a informação
     return {
       speciesKey: details.key,
       canonicalName: details.canonicalName,
@@ -242,7 +228,6 @@ export async function enrichFlowerWithGBIF(flower) {
       descriptions: details.descriptions || [],
       media: details.media || [],
       occurrenceCount: details.occurrenceCount,
-      // Additional taxonomic info
       higherClassification: details.higherClassification,
       habitats: details.habitats || [],
       threatStatus: details.threatStatuses || [],
