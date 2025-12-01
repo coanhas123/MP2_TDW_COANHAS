@@ -25,7 +25,6 @@ function loadDeletedSamples() {
   return [];
 }
 
-// Save deleted sample IDs
 function saveDeletedSamples(deletedIds) {
   try {
     localStorage.setItem(DELETED_SAMPLES_KEY, JSON.stringify(deletedIds));
@@ -34,7 +33,7 @@ function saveDeletedSamples(deletedIds) {
   }
 }
 
-// Load user plants from localStorage
+// A partir do LocalStorage carregar as plantas do utilizador
 function loadUserPlants() {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -48,10 +47,9 @@ function loadUserPlants() {
   return [];
 }
 
-// Save user plants to localStorage
+// Guardar plantas do utilizador no Local storage
 function saveUserPlants(plants) {
   try {
-    // Only save plants with valid images
     const plantsWithImages = plants.filter(hasValidImage);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(plantsWithImages));
   } catch (e) {
@@ -59,7 +57,7 @@ function saveUserPlants(plants) {
   }
 }
 
-// Load favorites from localStorage
+// Adicionar favoritos ao Local Storage
 export function loadFavorites() {
   try {
     const stored = localStorage.getItem(FAVORITES_KEY);
@@ -73,7 +71,7 @@ export function loadFavorites() {
   return [];
 }
 
-// Save favorites to localStorage
+// Salvar favoritos
 export function saveFavorites(favorites) {
   try {
     localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
@@ -82,18 +80,17 @@ export function saveFavorites(favorites) {
   }
 }
 
-// Custom event to sync user plants across components
+
 const USER_PLANTS_CHANGED_EVENT = 'user-plants-changed';
 
-// Function to trigger user plants sync
 function triggerUserPlantsSync() {
   window.dispatchEvent(new CustomEvent(USER_PLANTS_CHANGED_EVENT));
 }
 
-// =============================================================================
-// SAMPLE DATA - Flowers only with valid images
-// These are just examples, user's plants are loaded from localStorage
-// =============================================================================
+
+// DADOS DE EXEMPLO - Apenas flores com imagens válidas
+// Estes são apenas exemplos, as plantas do utilizador são carregadas do localStorage
+
 
 const SAMPLE_FLOWERS = [
   {
@@ -182,26 +179,26 @@ const SAMPLE_FLOWERS = [
   },
 ];
 
-// =============================================================================
+
 // HOOK
-// =============================================================================
+
 
 export default function useFlowers(fetchCount = 8) {
-  // Load deleted sample IDs
+  // Carregar IDs de amostras eliminadas
   const deletedSamples = loadDeletedSamples();
   
-  // Filter out deleted samples
+  // Filtrar amostras eliminadas
   const availableSamples = SAMPLE_FLOWERS.filter(
     sample => !deletedSamples.includes(sample.id)
   );
   
-  // Load user's saved plants from localStorage
+  // Carregar plantas guardadas do utilizador do localStorage
   const savedUserPlants = loadUserPlants();
   
-  // Find plants without images that need replacement
+  // Encontrar plantas sem imagens que precisam de substituição
   const plantsWithoutImages = savedUserPlants.filter(plant => !hasValidImage(plant));
   
-  // Initialize with available sample flowers + saved plants (will replace ones without images later)
+  // Inicializar com flores de amostra disponíveis + plantas guardadas (substituirá as sem imagens depois)
   const initialFlowers = [...availableSamples, ...savedUserPlants].filter(hasValidImage);
   
   const [flowers, setFlowers] = useState(initialFlowers);
@@ -209,27 +206,27 @@ export default function useFlowers(fetchCount = 8) {
   const [error, setError] = useState(null);
   const [replacingFlowers, setReplacingFlowers] = useState(false);
 
-  // Function to replace flowers without images with valid ones from API
+  // Função para substituir flores sem imagens por outras válidas da API
   const replaceFlowersWithoutImages = useCallback(async (plantsNeedingReplacement) => {
     if (plantsNeedingReplacement.length === 0) return;
 
-    console.log(`[useFlowers] Replacing ${plantsNeedingReplacement.length} flowers without images...`);
+    console.log(`[useFlowers] A substituir ${plantsNeedingReplacement.length} flores sem imagens...`);
     setReplacingFlowers(true);
 
     try {
-      // Fetch enough flowers to replace the ones without images
+      // Procurar flores suficientes para substituir as que não têm imagens
       const replacementCount = Math.max(plantsNeedingReplacement.length, 5);
       const apiFlowers = await fetchRandomFlowers(null, replacementCount);
       
-      // Filter to only flowers with valid images
+      // Filtrar apenas flores com imagens válidas
       const validReplacements = apiFlowers.filter(hasValidImage);
       
       if (validReplacements.length === 0) {
-        console.warn('[useFlowers] No valid replacement flowers found from API');
+        console.warn('[useFlowers] Não foram encontradas flores válidas para substituição na API');
         return;
       }
 
-      // Map replacements to plants needing replacement
+      // Mapear substituições para plantas que precisam de substituição
       setFlowers(current => {
         const updated = [...current];
         const userPlants = updated.filter(f => {
@@ -241,25 +238,25 @@ export default function useFlowers(fetchCount = 8) {
           return !idString.startsWith('user-') && !idString.startsWith('sample-');
         });
 
-        // Replace plants without images
+        // Substituir plantas sem imagens
         const replaced = userPlants.map(plant => {
           if (!hasValidImage(plant)) {
-            // Find the original plant in the list
+            // Encontrar a planta original na lista
             const needsReplacement = plantsNeedingReplacement.find(p => p.id === plant.id);
             if (needsReplacement && validReplacements.length > 0) {
-              // Get a replacement and keep the original ID and user data
+              // Obter uma substituição e manter o ID original e dados do utilizador
               const replacement = validReplacements.pop();
-              console.log(`[useFlowers] Replacing ${plant.name || plant.common_name} with ${replacement.common_name || replacement.name}`);
+              console.log(`[useFlowers] A substituir ${plant.name || plant.common_name} por ${replacement.common_name || replacement.name}`);
               
-              // Keep the original ID and merge with replacement data
+              // Manter o ID original e combinar com dados da substituição
               return {
                 ...replacement,
-                id: plant.id, // Keep original ID
+                id: plant.id,
                 name: plant.name || replacement.common_name || replacement.name,
                 common_name: plant.name || replacement.common_name || replacement.name,
                 scientific: plant.scientific || replacement.scientific_name || replacement.scientific,
                 scientific_name: plant.scientific || replacement.scientific_name || replacement.scientific,
-                // Preserve user-added notes or other custom fields if they exist
+                // Preservar notas adicionadas pelo utilizador ou outros campos personalizados se existirem
                 ...(plant.notes && { notes: plant.notes }),
                 ...(plant.customData && { customData: plant.customData }),
               };
@@ -268,7 +265,7 @@ export default function useFlowers(fetchCount = 8) {
           return plant;
         });
 
-        // Save the updated user plants (only user-* IDs, not samples)
+        // Guardar as plantas do utilizador actualizadas (apenas IDs user-*, não amostras)
         const userAddedOnly = replaced.filter(plant => {
           const idString = String(plant.id);
           return idString.startsWith('user-');
@@ -278,41 +275,41 @@ export default function useFlowers(fetchCount = 8) {
         return [...replaced, ...apiFlowers];
       });
     } catch (err) {
-      console.error('[useFlowers] Error replacing flowers without images:', err);
+      console.error('[useFlowers] Erro ao substituir flores sem imagens:', err);
     } finally {
       setReplacingFlowers(false);
     }
   }, []);
 
-  // Load user plants from storage
+  // Carregar plantas do utilizador do armazenamento
   const loadUserPlantsFromStorage = useCallback(() => {
     const deleted = loadDeletedSamples();
     const available = SAMPLE_FLOWERS.filter(s => !deleted.includes(s.id));
     const saved = loadUserPlants();
     
-    // Check for plants without images
+    // Verificar plantas sem imagens
     const withoutImages = saved.filter(plant => !hasValidImage(plant));
     if (withoutImages.length > 0) {
-      // Replace them asynchronously
+      // Substituí-las de forma assíncrona
       replaceFlowersWithoutImages(withoutImages);
     }
     
     return [...available, ...saved.filter(hasValidImage)].filter(hasValidImage);
   }, [replaceFlowersWithoutImages]);
 
-  // Check and replace flowers without images on mount
+  // Verificar e substituir flores sem imagens ao inicializar
   useEffect(() => {
     if (plantsWithoutImages.length > 0) {
       replaceFlowersWithoutImages(plantsWithoutImages);
     }
-  }, []); // Only run on mount
+  }, []); // Executar apenas ao inicializar
 
-  // Sync when storage changes
+  // Sincronizar quando o armazenamento muda
   useEffect(() => {
     const handleStorageChange = () => {
       const loaded = loadUserPlantsFromStorage();
       setFlowers(current => {
-        // Keep API flowers, update user plants and samples
+        // Manter flores da API, actualizar plantas do utilizador e amostras
         const apiFlowers = current.filter(f => {
           const idString = String(f.id || '');
           return !idString.startsWith('user-') && !idString.startsWith('sample-');
@@ -322,10 +319,10 @@ export default function useFlowers(fetchCount = 8) {
       });
     };
 
-    // Listen to custom event for same-tab sync
+    // Verificar evento personalizado para sincronização no mesmo separador
     window.addEventListener(USER_PLANTS_CHANGED_EVENT, handleStorageChange);
     
-    // Listen to storage events (for cross-tab sync)
+    // Verificar eventos de armazenamento (para sincronização entre separadores)
     window.addEventListener('storage', handleStorageChange);
 
     return () => {
@@ -334,27 +331,27 @@ export default function useFlowers(fetchCount = 8) {
     };
   }, [loadUserPlantsFromStorage]);
 
-  // ---------------------------------------------------------------------------
-  // Save user plants to localStorage whenever they change
-  // ---------------------------------------------------------------------------
+ 
+  // Guardar plantas do utilizador no localStorage sempre que mudarem
+ 
   useEffect(() => {
-    // Filter to only user's personal plants (user-* and sample-* IDs)
+    // Filtrar apenas plantas pessoais do utilizador (IDs user-* e sample-*)
     const userPlants = flowers.filter(flower => {
       if (!flower.id) return false;
       const idString = String(flower.id);
       return idString.startsWith('user-') || idString.startsWith('sample-');
     });
     
-    // Filter out plants without images and replace them
+    // Filtrar plantas sem imagens e substituí-las
     const userPlantsWithImages = userPlants.filter(hasValidImage);
     const withoutImages = userPlants.filter(plant => !hasValidImage(plant));
     
     if (withoutImages.length > 0) {
-      // Replace flowers without images
+      // Substituir flores sem imagens
       replaceFlowersWithoutImages(withoutImages);
     }
     
-    // Separate samples and user-added plants
+    // Separar amostras e plantas adicionadas pelo utilizador
     const samples = userPlantsWithImages.filter(flower => {
       const idString = String(flower.id);
       return idString.startsWith('sample-');
@@ -365,26 +362,26 @@ export default function useFlowers(fetchCount = 8) {
       return idString.startsWith('user-');
     });
     
-    // Save only user-added plants (not samples)
+    // Guardar apenas plantas adicionadas pelo utilizador (não amostras)
     saveUserPlants(userAddedPlants);
     
-    // Trigger sync after a delay
+    // Disparar sincronização após um atraso
     setTimeout(() => {
       triggerUserPlantsSync();
     }, 100);
   }, [flowers, replaceFlowersWithoutImages]);
 
-  // ---------------------------------------------------------------------------
-  // Fetch flowers from API on mount (but don't save to localStorage)
-  // ---------------------------------------------------------------------------
+
+  // Procurar flores da API ao inicializar (mas não guardar no localStorage)
+  
   useEffect(() => {
-    // No API key needed for iNaturalist
+
     fetchRandomFlowers(null, fetchCount)
       .then((data) => {
-        // Preserve all data from API including images, taxonomic hierarchy, etc.
-        // CRITICAL: Filter out flowers without images - don't add them to state
+        // Preservar todos os dados da API incluindo imagens, hierarquia taxonómica, etc.
+     
         const mapped = data
-          .filter(hasValidImage) // Only include flowers with valid images
+          .filter(hasValidImage) // Apenas incluir flores com imagens válidas
           .map((flower) => ({
             ...flower,
             name: flower.common_name || "Unknown Specimen",
@@ -394,11 +391,11 @@ export default function useFlowers(fetchCount = 8) {
             image: flower.default_image?.medium_url,
           }));
 
-        console.log(`[useFlowers] API returned ${data.length} flowers, ${mapped.length} with images`);
+        console.log(`[useFlowers] A API retornou ${data.length} flores, ${mapped.length} com imagens`);
 
-        // Don't overwrite user's plants, just add API flowers (they're not saved to localStorage)
+        // Não sobrescrever plantas do utilizador, apenas adicionar flores da API (não são guardadas no localStorage)
         setFlowers((prev) => {
-          // Keep existing user plants and samples, add API flowers
+          // Manter plantas do utilizador e amostras existentes, adicionar flores da API
           const userPlants = prev.filter(f => {
             const idString = String(f.id || '');
             return idString.startsWith('user-') || idString.startsWith('sample-');
@@ -408,20 +405,20 @@ export default function useFlowers(fetchCount = 8) {
         setLoading(false);
       })
       .catch((err) => {
-        console.error('Error fetching flowers:', err);
+        console.error('Erro ao buscar flores:', err);
         setError(err);
         setLoading(false);
       });
   }, [fetchCount]);
 
-  // ---------------------------------------------------------------------------
-  // Add a new flower to the collection
-  // ---------------------------------------------------------------------------
+  
+  // Adicionar uma nova flor à colecção
+  
   const addFlower = useCallback((newFlower) => {
-    // CRITICAL: Don't add flowers without images
+ 
     if (!hasValidImage(newFlower)) {
-      console.warn('[useFlowers] Cannot add flower without image:', newFlower.name);
-      alert("Please upload an image for your plant before adding it to the collection.");
+      console.warn('[useFlowers] Não é possível adicionar flor sem imagem:', newFlower.name);
+      alert("Por favor, carregue uma imagem para a sua planta antes de a adicionar à colecção.");
       return;
     }
 
@@ -435,15 +432,15 @@ export default function useFlowers(fetchCount = 8) {
     setFlowers((prev) => [flowerWithId, ...prev]);
   }, []);
 
-  // ---------------------------------------------------------------------------
-  // Remove a flower by ID
-  // ---------------------------------------------------------------------------
+ 
+  // Remover uma flor por ID
+
   const removeFlower = useCallback((id) => {
     if (!id) return;
     
     const idString = String(id);
     
-    // If it's a sample, mark it as deleted
+    // Se for uma amostra, marcá-la como eliminada
     if (idString.startsWith('sample-')) {
       const deleted = loadDeletedSamples();
       if (!deleted.includes(idString)) {
@@ -452,7 +449,7 @@ export default function useFlowers(fetchCount = 8) {
       }
     }
     
-    // Remove from state
+    // Remover do estado
     setFlowers((prev) => prev.filter((flower) => flower.id !== id));
   }, []);
 
