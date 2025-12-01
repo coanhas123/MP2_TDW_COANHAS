@@ -52,6 +52,21 @@ jobs:
         env:
           NODE_ENV: production
 
+      # Ensure .nojekyll exists in dist (critical for GitHub Pages)
+      - name: Ensure .nojekyll exists
+        run: |
+          if [ ! -f dist/.nojekyll ]; then
+            touch dist/.nojekyll
+            echo "Created .nojekyll file in dist"
+          else
+            echo ".nojekyll already exists in dist"
+          fi
+          # Also copy from public if it exists
+          if [ -f public/.nojekyll ]; then
+            cp public/.nojekyll dist/.nojekyll
+            echo "Copied .nojekyll from public to dist"
+          fi
+
       # Verify build output
       - name: Verify build files
         run: |
