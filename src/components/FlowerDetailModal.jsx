@@ -2,11 +2,9 @@
 // Exibe: nome científico, nome comum, categoria taxonómica, estado de conservação, imagens
 // Inclui o botão «Adicionar à minha coleção» para favoritos
 // Aprimorado com a API GBIF para informações adicionais
-// Inclui informações sobre cuidados com as plantas
 
 import { useState, useEffect } from 'react';
 import { enrichFlowerWithGBIF } from '../lib/gbif';
-import { getPlantCareInfo } from '../lib/plantCare';
 
 export default function FlowerDetailModal({ flower, isOpen, onClose, onAddToCollection, isInCollection, onAddToMyFlowers, isInMyFlowers }) {
   const [gbifData, setGbifData] = useState(null);
@@ -76,9 +74,6 @@ export default function FlowerDetailModal({ flower, isOpen, onClose, onAddToColl
   const commonNames = gbifData?.vernacularNames || [];
   const englishNames = commonNames.filter(v => v.language === 'eng').map(v => v.vernacularName);
   const allCommonNames = [...new Set(commonNames.map(v => v.vernacularName))];
-
-  // Get plant care information
-  const plantCare = getPlantCareInfo(flower);
 
   return (
     <div 
@@ -220,38 +215,6 @@ export default function FlowerDetailModal({ flower, isOpen, onClose, onAddToColl
               </div>
             </div>
           )}
-
-          {/* Plant Care Information */}
-          <div className="info-section">
-            <h3 className="modal-section-title">Plant Care</h3>
-            <div className="plant-care-grid">
-              <div className="care-item">
-                <span className="care-label">Watering:</span>
-                <span className="care-value">{plantCare.watering}</span>
-              </div>
-              <div className="care-item">
-                <span className="care-label">Light:</span>
-                <span className="care-value">{plantCare.light}</span>
-              </div>
-              <div className="care-item">
-                <span className="care-label">Soil:</span>
-                <span className="care-value">{plantCare.soil}</span>
-              </div>
-              <div className="care-item">
-                <span className="care-label">Temperature:</span>
-                <span className="care-value">{plantCare.temperature}</span>
-              </div>
-              <div className="care-item">
-                <span className="care-label">Fertilization:</span>
-                <span className="care-value">{plantCare.fertilization}</span>
-              </div>
-              <div className="care-item">
-                <span className="care-label">Pruning:</span>
-                <span className="care-value">{plantCare.pruning}</span>
-              </div>
-            </div>
-            <p className="care-source">{plantCare.source}</p>
-          </div>
 
           {/* Species Descriptions from GBIF */}
           {gbifData?.descriptions && gbifData.descriptions.length > 0 && (
